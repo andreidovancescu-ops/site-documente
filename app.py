@@ -1,4 +1,4 @@
-from flask import Flask, render_template_string, request, send_file
+from flask import Flask, render_template_string, request, send_file, Response
 from fpdf import FPDF
 import io
 import os
@@ -40,7 +40,7 @@ BAZA_HTML = """
 <body>
     <header>
         <div class="nav-container">
-            <a href="/" class="logo">📄 DocumenteRapide</a>
+            <a href="/" class="logo">DocumenteRapide</a>
             <nav>
                 <a href="/">Acasă</a>
                 <a href="/cerere-demisie">Cerere Demisie</a>
@@ -49,11 +49,9 @@ BAZA_HTML = """
             </nav>
         </div>
     </header>
-
     <div class="container">
         {{ continut | safe }}
     </div>
-
     <footer>
         <p>© 2026 DocumenteRapide - Generator Gratuit de Documente PDF Online</p>
         <p>
@@ -68,7 +66,10 @@ BAZA_HTML = """
 def genereaza_pdf_bytes(titlu, corp_text):
     pdf = FPDF()
     pdf.add_page()
-    if os.path.exists("C:/Windows/Fonts/arial.ttf"):
+    if os.path.exists("arial.ttf"):
+        pdf.add_font("ArialUnicode", "", "arial.ttf")
+        pdf.set_font("ArialUnicode", size=14)
+    elif os.path.exists("C:/Windows/Fonts/arial.ttf"):
         pdf.add_font("ArialUnicode", "", "C:/Windows/Fonts/arial.ttf")
         pdf.set_font("ArialUnicode", size=14)
     else:
@@ -91,19 +92,19 @@ def acasa():
         <p>Alege documentul de care ai nevoie, completează datele în 30 de secunde și descarcă fișierul PDF gata formatat pentru printare sau trimitere pe e-mail.</p>
         <div class="grid-tools">
             <a href="/cerere-demisie" class="tool-box">
-                <h3>📝 Cerere de Demisie</h3>
+                <h3>Cerere de Demisie</h3>
                 <p>Model oficial cu preaviz sau cu acordul părților, conform Codului Muncii.</p>
             </a>
             <a href="/cerere-concediu" class="tool-box">
-                <h3>🏖️ Cerere Concediu</h3>
+                <h3>Cerere Concediu</h3>
                 <p>Generează rapid cererea pentru concediul de odihnă sau fără plată.</p>
             </a>
             <a href="/declaratie-proprie-raspundere" class="tool-box">
-                <h3>✍️ Declarație Proprie Răspundere</h3>
+                <h3>Declarație Proprie Răspundere</h3>
                 <p>Utilă pentru primărie, instituții publice, școli sau furnizori.</p>
             </a>
             <a href="/cerere-generala" class="tool-box">
-                <h3>📩 Cerere / Reclamație Generală</h3>
+                <h3>Cerere / Reclamație Generală</h3>
                 <p>Formular flexibil pentru orice solicitare către o firmă sau instituție.</p>
             </a>
         </div>
@@ -143,7 +144,7 @@ def demisie():
             <label>Numele și Prenumele tău:</label>
             <input type="text" name="nume" required placeholder="Ex: Popescu Andrei">
             <label>Funcția ocupată:</label>
-            <input type="text" name="functie" required placeholder="Ex: Operator calculator / Vânzător">
+            <input type="text" name="functie" required placeholder="Ex: Operator calculator">
             <label>Numele firmei (Angajator):</label>
             <input type="text" name="firma" required placeholder="Ex: SC Exemplu SRL">
             <label>Modalitatea de încetare:</label>
@@ -155,10 +156,6 @@ def demisie():
             <input type="text" name="data_incetare" required placeholder="Ex: 01.12.2026">
             <button type="submit">Descarcă Cererea de Demisie (PDF)</button>
         </form>
-    </div>
-    <div class="card">
-        <h2>Informații utile despre depunerea demisiei</h2>
-        <p>Conform Codului Muncii din România, angajatul are dreptul să nu își motiveze demisia. Dacă optezi pentru încetarea cu acordul părților, contractul se poate încheia chiar a doua zi, dacă angajatorul este de acord.</p>
     </div>
     """
     return render_template_string(BAZA_HTML, titlu_pagina="Generator Cerere de Demisie PDF", descriere_seo="Completeaza online si descarca gratuit model cerere de demisie PDF.", continut=continut)
@@ -190,5 +187,8 @@ def concediu():
             <label>Numele și Prenumele tău:</label>
             <input type="text" name="nume" required placeholder="Ex: Ionescu Maria">
             <label>Funcția ocupată:</label>
-            <input type="text" name="functie" required placeholder="Ex: Contabil / Asistent">
+            <input type="text" name="functie" required placeholder="Ex: Contabil">
             <label>Numele firmei:</label>
+            <input type="text" name="firma" required placeholder="Ex: SC Exemplu SRL">
+            <label>Numărul de zile lucrătoare:</label>
+            <input type="text" name="zile" required placeholder="Ex: 5">
